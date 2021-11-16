@@ -12,10 +12,6 @@ class UserController {
     console.log('UserController getAllUsers ');
     let userList = await UserModel.find();
 
-    // if (!userList.length) {
-    //   throw new HttpException(404, 'Users not found');
-    // }
-
     userList = userList.map((user) => {
       const { password, ...userWithoutPassword } = user;
       return userWithoutPassword;
