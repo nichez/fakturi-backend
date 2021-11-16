@@ -1,51 +1,117 @@
-'use strict';
-module.exports = function (app) {
-  var articles = require('../controllers/appController');
-  var delovniPartneri = require('../controllers/delovniPartneriController');
-  var promet = require('../controllers/prometController');
-  var stavki = require('../controllers/stavkiController');
+const auth = require('../middleware/auth.middleware');
+const awaitHandlerFactory = require('../middleware/awaitHandlerFactory.middleware');
+const {
+  createUserSchema,
+  updateUserSchema,
+  validateLogin,
+} = require('../middleware/validators/userValidator.middleware');
 
+const artikalController = require('../controllers/appController');
+const delovenPartnerController = require('../controllers/delovniPartneriController');
+const stavkiController = require('../controllers/stavkiController');
+const prometController = require('../controllers/prometController');
+const userController = require('../controllers/userController');
+
+module.exports = function (app) {
   // Article Routes
   app
     .route('/articles')
-    .get(articles.get_all_articles)
-    .post(articles.create_article);
+    .get(auth(), awaitHandlerFactory(artikalController.getAllArtikli))
+    .post(auth(), awaitHandlerFactory(artikalController.createArtikal));
 
   app
     .route('/articles/:articleId')
-    .get(articles.get_article)
-    .put(articles.update_article)
-    .delete(articles.remove_article);
+    .get(auth(), awaitHandlerFactory(artikalController.getArtikal))
+    .put(auth(), awaitHandlerFactory(artikalController.updateArtikal))
+    .delete(auth(), awaitHandlerFactory(artikalController.deleteArtikal));
 
   // Partners Routes
   app
     .route('/delovniPartneri')
-    .get(delovniPartneri.get_all_partners)
-    .post(delovniPartneri.create_partner);
+    .get(auth(), awaitHandlerFactory(delovenPartnerController.getAllPartneri))
+    .post(auth(), awaitHandlerFactory(delovenPartnerController.createPartner));
 
   app
     .route('/delovniPartneri/:partnerId')
-    .get(delovniPartneri.get_partner)
-    .put(delovniPartneri.update_partner)
-    .delete(delovniPartneri.remove_partner);
+    .get(auth(), awaitHandlerFactory(delovenPartnerController.getPartner))
+    .put(auth(), awaitHandlerFactory(delovenPartnerController.updatePartner))
+    .delete(
+      auth(),
+      awaitHandlerFactory(delovenPartnerController.deletePartner)
+    );
+
+  // Prikaz Routes
+  app
+    .route('/prikazPromet')
+    .get(awaitHandlerFactory(prometController.getPrometForPrikaz));
 
   // Promet Routes
-  app.route('/promet').get(promet.get_all_promet).post(promet.create_promet);
+  app.route('/promet').get(awaitHandlerFactory(prometController.getAllPromet));
+  // .post((awaitHandlerFactory(prometController.createPromet));
+
+  app
+    .route('/promet/vid/:vid')
+    .get(awaitHandlerFactory(prometController.getPrometByVid));
+
+  app
+    .route('/promet/byGodina/:vid/:godina')
+    .get(awaitHandlerFactory(prometController.getPrometByGodina));
 
   app
     .route('/promet/:prometId')
-    .get(promet.get_promet)
-    .put(promet.update_promet)
-    .delete(promet.remove_promet);
+    .get(auth(), awaitHandlerFactory(prometController.getPromet))
+    // .put(promet.update_promet)
+    .delete(auth(), awaitHandlerFactory(prometController.deletePromet));
+
+  app
+    .route('/promet/all/last')
+    .get(auth(), awaitHandlerFactory(prometController.getLastPrometBroj));
+
+  app
+    .route('/promet/byDatum/datumFrom=:datumFrom&datumTo=:datumTo')
+    .get(awaitHandlerFactory(prometController.getPrometBetweenDates));
 
   // Stavki Routes
-  app.route('/stavki').get(stavki.get_all_stavki).post(stavki.create_stavki);
+  app
+    .route('/stavki')
+    .get(auth(), awaitHandlerFactory(stavkiController.getAllStavki))
+    .put(auth(), awaitHandlerFactory(stavkiController.updateStavki))
+    .post(auth(), awaitHandlerFactory(stavkiController.createStavki));
 
   app
     .route('/stavki/:stavkaId')
-    .get(stavki.get_stavka_by_shifra)
-    .put(stavki.update_stavka)
-    .delete(stavki.remove_stavka);
+    .get(auth(), awaitHandlerFactory(stavkiController.getStavkaByShifra))
+    // .put(awaitHandlerFactory(stavkiController.updateStavki))
+    .delete(auth(), awaitHandlerFactory(stavkiController.deleteStavka));
 
-  app.route('/stavki/byBroj/:stavkaId').get(stavki.get_stavka_by_broj);
+  app
+    .route('/stavki/byBroj/:stavkaId')
+    .get(auth(), awaitHandlerFactory(stavkiController.getStavkaByBroj));
+
+  app
+    .route('/stavki/allStavki/last')
+    .get(auth(), awaitHandlerFactory(stavkiController.getLastBroj));
+
+  app
+    .route('/stavki/vid/:vid')
+    .get(auth(), awaitHandlerFactory(stavkiController.getStavkiByVid));
+
+  // Users Routes
+  app
+    .route('/users')
+    .get(auth(), awaitHandlerFactory(userController.getAllUsers))
+    .post(auth(), awaitHandlerFactory(userController.createUser));
+
+  app
+    .route('/users/:id')
+    .get(auth(), awaitHandlerFactory(userController.getUserById))
+    .put(auth(), awaitHandlerFactory(userController.updateUser))
+    .delete(auth(), awaitHandlerFactory(userController.deleteUser));
+
+  app
+    .route('/users/username/:username')
+    .get(auth(), awaitHandlerFactory(userController.getUserByUsername));
+
+  // Login Routes
+  app.route('/login').post(awaitHandlerFactory(userController.userLogin));
 };
