@@ -4,12 +4,6 @@ var query = require('./db.js');
 const { multipleColumnSet } = require('../utils/common.utils');
 const Role = require('../utils/userRoles.utils');
 
-// var User = function (user) {
-//     this.username = user.username;
-//     this.password = user.password;
-//     this.role = user.role;
-//   };
-
 class UserModel {
   tableName = 'users';
 
@@ -34,7 +28,6 @@ class UserModel {
 
     const result = await query(sql, [...values]);
 
-    // return back the first row (user)
     return result[0];
   };
 

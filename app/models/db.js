@@ -1,21 +1,3 @@
-// 'user strict';
-
-// var mysql = require('mysql');
-
-// //local mysql db connection
-// var connection = mysql.createConnection({
-// host: 'localhost',
-// user: 'root',
-// password: '',
-// database: 'testExpress',
-// });
-
-// connection.connect(function (err) {
-//   if (err) throw err;
-// });
-
-// module.exports = connection;
-
 const dotenv = require('dotenv');
 dotenv.config();
 const mysql2 = require('mysql2');

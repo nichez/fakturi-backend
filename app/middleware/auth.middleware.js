@@ -28,9 +28,6 @@ const auth = (...roles) => {
       // check if the current user is the owner user
       const ownerAuthorized = req.params.id == user.id;
 
-      // if the current user is not the owner and
-      // if the user role don't have the permission to do this action.
-      // the user will get this error
       if (!ownerAuthorized && roles.length && !roles.includes(user.role)) {
         throw new HttpException(401, 'Unauthorized');
       }
